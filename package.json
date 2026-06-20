@@ -1,0 +1,36 @@
+{
+  "name": "nullbank",
+  "version": "1.0.0",
+  "description": "Trabalho final da disciplina de banco de dados",
+  "homepage": "https://github.com/pab-h/TrabalhoBD-2026_1-NullBank#readme",
+  "bugs": {
+    "url": "https://github.com/pab-h/TrabalhoBD-2026_1-NullBank/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pab-h/TrabalhoBD-2026_1-NullBank.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "start": "node dist/src/index.js",
+    "dev": "tsx watch src"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.5",
+    "dotenv": "^17.3.1",
+    "fastify": "^5.8.5",
+    "mysql2": "^3.22.5",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
