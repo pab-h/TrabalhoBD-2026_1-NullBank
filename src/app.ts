@@ -32,6 +32,10 @@ app.register(fastifySwagger, {
         name:        'clientes',
         description: 'Rotas para a consulta dos clientes',
       },
+      {
+        name:        'cidades',
+        description: 'Rotas para a consulta das cidades',
+      },
       { 
         name:        'views',
         description: 'Rotas para a consulta das views',
