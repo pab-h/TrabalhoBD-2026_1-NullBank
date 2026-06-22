@@ -104,7 +104,7 @@ CREATE TABLE email_cliente (
 
 CREATE TABLE conta_bancaria (
 
-    num_conta INT            NOT NULL,
+    num_conta INT            AUTO_INCREMENT NOT NULL,
     saldo     DECIMAL(15, 2) NOT NULL DEFAULT 0.00, 
     senha     VARCHAR(255)   NOT NULL,
 
