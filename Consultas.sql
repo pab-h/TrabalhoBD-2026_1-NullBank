@@ -66,6 +66,31 @@ DELIMITER ;
 
 -- cole as triggers aqui, antes da secção de testes!
 
+-- -----------------------------------------------------
+-- RF11: Trigger para atualização automática de saldo
+-- -----------------------------------------------------
+DELIMITER //
+
+CREATE TRIGGER trg_atualiza_saldo_apos_transacao
+AFTER INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    -- Verifica se a transação deve retirar dinheiro (e se o valor é positivo)
+    IF NEW.tipo_transacao IN ('saque', 'pagamento') THEN
+        UPDATE conta_bancaria 
+        SET saldo = saldo - NEW.valor 
+        WHERE num_conta = NEW.fk_num_conta;
+        
+    -- Para depósitos, estornos ou transferências/PIX (onde o sinal já é tratado pela Procedure)
+    ELSE
+        UPDATE conta_bancaria 
+        SET saldo = saldo + NEW.valor 
+        WHERE num_conta = NEW.fk_num_conta;
+    END IF;
+END //
+
+DELIMITER ;
+
 -- ==========================================
 -- 2. TESTES E CONSULTAS
 -- ==========================================
