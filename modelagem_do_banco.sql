@@ -6,10 +6,10 @@ USE Equipe540193;
 
 CREATE TABLE agencia (
 
-    num_ag        INT            AUTO_INCREMENT PRIMARY KEY,
-    nome_ag          VARCHAR(256)   NOT NULL,
+    num_ag    INT            AUTO_INCREMENT PRIMARY KEY,
+    nome_ag   VARCHAR(256)   NOT NULL,
     sal_total DECIMAL(12, 2) DEFAULT 0,
-    cidade        VARCHAR(256)   NOT NULL
+    cidade    VARCHAR(256)   NOT NULL
 
 );
 
