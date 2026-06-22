@@ -63,10 +63,10 @@ INSERT INTO titularidade (fk_num_conta, fk_cpf_cliente, titularidade) VALUES
 
 (1001, '11122233344', '1º Titular'), 
 (1002, '55566677788', '1º Titular'),
-(1002, '11122233344', '2º Titular'), 
+(1002, '22233344455', '2º Titular'), 
 (1003, '22233344455', '1º Titular'), 
 (1004, '99988877766', '1º Titular'), 
-(1005, '11122233344', '1º Titular'); 
+(1005, '99988877766', '1º Titular'); 
 
 INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES 
 (1, 1001, 'depósito', '2026-05-10 10:00:00', 2000.00), 
