@@ -93,6 +93,56 @@ END //
 
 DELIMITER ;
 
+DELIMITER //
+
+-- 1. TRIGGER PARA INSERÇÃO (AFTER INSERT)
+CREATE TRIGGER trg_funcionario_insert
+AFTER INSERT ON funcionario
+FOR EACH ROW
+BEGIN
+    UPDATE agencia 
+    SET sal_total = sal_total + NEW.salario
+    WHERE num_ag = NEW.fk_num_ag;
+END //
+
+-- 2. TRIGGER PARA REMOÇÃO (AFTER DELETE)
+CREATE TRIGGER trg_funcionario_delete
+AFTER DELETE ON funcionario
+FOR EACH ROW
+BEGIN
+    UPDATE agencia 
+    SET sal_total = sal_total - OLD.salario
+    WHERE num_ag = OLD.fk_num_ag;
+END //
+
+-- 3. TRIGGER PARA ATUALIZAÇÃO (AFTER UPDATE)
+-- Trata mudança de salário E mudança de agência ao mesmo tempo
+CREATE TRIGGER trg_funcionario_update
+AFTER UPDATE ON funcionario
+FOR EACH ROW
+BEGIN
+    -- Se o funcionário mudou de agência
+    IF OLD.fk_num_ag <> NEW.fk_num_ag THEN
+        -- Deduz o salário da agência antiga
+        UPDATE agencia 
+        SET sal_total = sal_total - OLD.salario
+        WHERE num_ag = OLD.fk_num_ag;
+        
+        -- Soma o salário na agência nova
+        UPDATE agencia 
+        SET sal_total = sal_total + NEW.salario
+        WHERE num_ag = NEW.fk_num_ag;
+        
+    -- Se ele continuou na mesma agência, mas o salário mudou
+    ELSEIF OLD.salario <> NEW.salario THEN
+        UPDATE agencia 
+        SET sal_total = sal_total - OLD.salario + NEW.salario
+        WHERE num_ag = NEW.fk_num_ag;
+    END IF;
+END //
+
+DELIMITER ;
+
 -- ==========================================
 -- 2. TESTES E CONSULTAS
 -- ==========================================
