@@ -3,18 +3,20 @@
 -- ==========================================
 
 -- RF16.1: Visão de Contas por Gerente
-CREATE OR REPLACE VIEW v_contas_por_gerente AS
+CREATE VIEW v_contas_por_gerente AS
 SELECT 
-    c.fk_matricula_gerente AS matricula_gerente,
-    c.num_conta,
-    c.tipo_conta,
-    c.saldo,
-    t.fk_cpf_cliente AS cpf_cliente,
-    cli.nome_completo AS nome_cliente,
+    f.matricula AS gerente_matricula,
+    f.nome_completo AS gerente_nome,
+    cb.num_conta,
+    cb.tipo_conta,
+    cb.saldo,
+    c.cpf AS cliente_cpf,
+    c.nome_completo AS cliente_nome,
     t.titularidade
-FROM conta_bancaria c
-JOIN titularidade t ON c.num_conta = t.fk_num_conta
-JOIN cliente cli ON t.fk_cpf_cliente = cli.cpf;
+FROM funcionario f
+INNER JOIN conta_bancaria cb ON f.matricula = cb.fk_matricula_gerente
+INNER JOIN titularidade t ON cb.num_conta = t.fk_num_conta
+INNER JOIN cliente c ON t.fk_cpf_cliente = c.cpf;
 
 -- RF16.2: Visão de Extrato Bancário Dinâmico
 CREATE OR REPLACE VIEW v_extrato_transacoes AS
