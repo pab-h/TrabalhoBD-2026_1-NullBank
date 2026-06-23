@@ -37,25 +37,38 @@ export class AgenciasService {
     const { id } = request.params as { id: string };
 
     try {
-      // Agrupamento usando as funções nativas de JSON do MySQL (JSON_OBJECT e JSON_ARRAYAGG)
       const query = `
         SELECT 
           cb.tipo_conta, 
-          JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'cpf', c.cpf, 
-              'nome', c.nome_completo
-            )
-          ) AS clientes
+          c.nome_completo
         FROM cliente c
         JOIN titularidade t ON t.fk_cpf_cliente = c.cpf
         JOIN conta_bancaria cb ON cb.num_conta = t.fk_num_conta
         WHERE cb.fk_num_ag = ?
-        GROUP BY cb.tipo_conta
+        GROUP BY cb.tipo_conta, c.nome_completo
       `;
       
-      const [rows] = await pool.query(query, [id]);
-      return reply.status(200).send(rows);
+      // Pegamos o primeiro elemento do array retornado pela query (que são as linhas) 
+      // e dizemos ao TypeScript exatamente o formato delas usando o "as"
+      const [result] = await pool.query(query, [id]);
+      const rows = result as { tipo_conta: string; nome_completo: string }[];
+
+      // Reduz o array plano para o objeto agrupado por tipo_conta
+      const resultadoAgrupado = rows.reduce((acc, row) => {
+        const { tipo_conta, nome_completo } = row;
+
+        if (!acc[tipo_conta]) {
+          acc[tipo_conta] = [];
+        }
+
+        acc[tipo_conta].push({
+          nome: nome_completo
+        });
+
+        return acc;
+      }, {} as Record<string, { nome: string }[]>);
+
+      return reply.status(200).send(resultadoAgrupado);
     } catch (error) {
       return reply.status(500).send({ error: "Erro interno ao buscar clientes." });
     }
