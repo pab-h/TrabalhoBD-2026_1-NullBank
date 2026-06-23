@@ -55,16 +55,9 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
     {
       preHandler: [verificarAcesso(["DBA"])],
       schema: {
-        description: "Lista os dados contratuais e funcionais de todos os colaboradores que atuam na cidade, agrupados pelo parâmetro selecionado.",
+        description: "Lista o nome, endereço, cargo, salário e agência de todos os funcionários que trabalham na cidade informada, ordenados por agência, cargo e salário",
         tags: ["cidades"],
         params: paramsCidadeSchema,
-        querystring: {
-          type: "object",
-          properties: {
-            agruparPor: { type: "string", enum: ["agencia", "cargo", "salario"], description: "Critério de agrupamento obrigatório." }
-          },
-          required: ["agruparPor"]
-        },
         headers: {
           type: "object",
           properties: { "x-user-role": { type: "string", description: "Requer: DBA" } },
@@ -76,20 +69,11 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
             items: {
               type: "object",
               properties: {
-                grupo: { type: "string" },
-                colaboradores: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      nome: { type: "string" },
-                      cargo: { type: "string" },
-                      salario: { type: "number" },
-                      agencia: { type: "string" },
-                      endereco: { type: "string" }
-                    }
-                  }
-                }
+                nome: { type: "string" },
+                endereco: { type: "string" },
+                cargo: { type: "string" },
+                salario: { type: "number" },
+                agencia: { type: "string" }
               }
             }
           }
