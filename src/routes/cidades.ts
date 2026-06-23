@@ -23,7 +23,7 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
 
   // 1. Clientes por Cidade
   app.get(
-    "/api/cidades/:nome_cidade/clientes",
+    "/:nome_cidade/clientes",
     {
       preHandler: [verificarAcesso(["DBA", "Gerente"])],
       schema: {
@@ -51,7 +51,7 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
 
   // 2. Funcionários por Cidade
   app.get(
-    "/api/cidades/:nome_cidade/funcionarios",
+    "/:nome_cidade/funcionarios",
     {
       preHandler: [verificarAcesso(["DBA"])],
       schema: {
@@ -85,7 +85,7 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
 
   // 3. Balanço Salarial por Cidade
   app.get(
-    "/api/cidades/:nome_cidade/agencias/balanco-salarial",
+    "/:nome_cidade/agencias/balanco-salarial",
     {
       preHandler: [verificarAcesso(["DBA"])],
       schema: {
