@@ -7,7 +7,7 @@ export class ClientesService {
         const { cpf } = request.params as { cpf: string };
 
         try {
-            const querry = `
+            const query = `
             SELECT cb.num_conta, cb.tipo_conta, cb.saldo, a.nome_ag AS agencia, f.nome_completo AS gerente
             FROM conta_bancaria cb
             JOIN titularidade t ON cb.num_conta = t.fk_num_conta
@@ -15,7 +15,7 @@ export class ClientesService {
             JOIN funcionario f ON cb.fk_matricula_gerente = f.matricula
             WHERE t.fk_cpf_cliente = ?
             `;
-            const [rows] = await pool.query(querry, [cpf]);
+            const [rows] = await pool.query(query, [cpf]);
             return reply.status(200).send(rows);
         } catch (error) {
             return reply.status(500).send({ error: "Erro ao buscar contas do cliente" });
@@ -26,14 +26,14 @@ export class ClientesService {
         const { cpf } = request.params as { cpf: string };
 
         try {
-            const querry = `
+            const query = `
             SELECT c.nome_completo, c.cpf, t2.fk_num_conta AS num_conta
             FROM titularidade t1
             JOIN titularidade t2 ON t1.fk_num_conta = t2.fk_num_conta AND t1.fk_cpf_cliente != t2.fk_cpf_cliente
             JOIN cliente c ON t2.fk_cpf_cliente = c.cpf
             WHERE t1.fk_cpf_cliente = ?
             `;
-            const [rows] = await pool.query(querry, [cpf]);
+            const [rows] = await pool.query(query, [cpf]);
             return reply.status(200).send(rows);
         } catch (error) {
             return reply.status(500).send({ error: "Erro ao buscar contas conjuntas" });
@@ -51,7 +51,7 @@ export class ClientesService {
         const dias = parseInt(periodo.replace("d", ""), 10);
 
         try {
-            const querry = `
+            const query = `
             SELECT cb.num_conta, COUNT(tr.num_transacao) AS total_transacoes
             FROM conta_bancaria cb
             JOIN titularidade t ON cb.num_conta = t.fk_num_conta
@@ -60,7 +60,7 @@ export class ClientesService {
             GROUP BY cb.num_conta
             ORDER BY total_transacoes DESC
             `;
-            const [rows] = await pool.query(querry, [cpf, dias]);
+            const [rows] = await pool.query(query, [cpf, dias]);
             return reply.status(200).send(rows);
         } catch (error) {
 
@@ -77,7 +77,7 @@ export class ClientesService {
         const dias = parseInt(periodo.replace("d", ""), 10);
 
         try {
-            const querry = `
+            const query = `
             SELECT cb.num_conta, SUM(ABS(tr.valor)) AS volume_total
             FROM conta_bancaria cb
             JOIN titularidade t ON cb.num_conta = t.fk_num_conta
@@ -86,7 +86,7 @@ export class ClientesService {
             GROUP BY cb.num_conta
             ORDER BY volume_total DESC
             `;
-            const [rows] = await pool.query(querry, [cpf, dias]);
+            const [rows] = await pool.query(query, [cpf, dias]);
             return reply.status(200).send(rows);
         } catch (error) {
             return reply.status(500).send({ error: "Erro ao buscar contas com maior volume de transações" });
