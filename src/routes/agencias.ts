@@ -74,7 +74,7 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
   );
 
   // 2. Clientes vinculados à agência
-  app.get(
+app.get(
     "/:id/clientes",
     {
       preHandler: [verificarAcesso(["DBA", "Gerente", "Atendente"])],
@@ -91,19 +91,32 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
         },
         response: {
           200: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                tipo_conta: { type: "string", enum: ["conta-corrente", "poupança", "conta especial"] },
-                clientes: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      cpf: { type: "string", minLength: 11, maxLength: 11 },
-                      nome: { type: "string" }
-                    }
+            type: "object",
+            properties: {
+              "conta-corrente": {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    nome: { type: "string" }
+                  }
+                }
+              },
+              "poupança": {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    nome: { type: "string" }
+                  }
+                }
+              },
+              "conta especial": {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    nome: { type: "string" }
                   }
                 }
               }
