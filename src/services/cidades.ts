@@ -16,7 +16,7 @@ export class CidadesService {
         WHERE cidade = ?
         ORDER BY data_nascimento DESC
       `;
-      
+
       const [rows] = await pool.query(query, [nome_cidade]);
       return reply.status(200).send(rows);
     } catch (error) {
@@ -27,33 +27,21 @@ export class CidadesService {
   // GET /api/cidades/:nome_cidade/funcionarios
   getFuncionariosPorCidade = async (request: FastifyRequest, reply: FastifyReply) => {
     const { nome_cidade } = request.params as { nome_cidade: string };
-    const { agruparPor } = request.query as { agruparPor: "agencia" | "cargo" | "salario" };
-
-    // Define dinamicamente a coluna de agrupamento no JSON_ARRAYAGG do MySQL
-    let groupByColumn = "";
-    if (agruparPor === "agencia") groupByColumn = "a.nome_ag";
-    else if (agruparPor === "cargo") groupByColumn = "f.cargo";
-    else if (agruparPor === "salario") groupByColumn = "f.salario";
 
     try {
       const query = `
         SELECT 
-          ${groupByColumn} AS grupo,
-          JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'nome', f.nome_completo,
-              'cargo', f.cargo,
-              'salario', f.salario,
-              'agencia', a.nome_ag,
-              'endereco', CONCAT(f.tipo_logradouro, ' ', f.nome_logradouro, ', ', f.numero, ' - ', f.bairro, ', ', f.cidade, '/', f.estado)
-            )
-          ) AS colaboradores
+          f.nome_completo AS nome,
+          CONCAT(f.tipo_logradouro, ' ', f.nome_logradouro, ', ', f.numero, ' - ', f.bairro, ', ', f.cidade, '/', f.estado) AS endereco,
+          f.cargo,
+          f.salario,
+          a.nome_ag AS agencia
         FROM funcionario f
         JOIN agencia a ON a.num_ag = f.fk_num_ag
         WHERE a.cidade = ?
-        GROUP BY ${groupByColumn}
+        ORDER BY a.nome_ag, f.cargo, f.salario DESC
       `;
-      
+
       const [rows] = await pool.query(query, [nome_cidade]);
       return reply.status(200).send(rows);
     } catch (error) {
@@ -72,7 +60,7 @@ export class CidadesService {
         WHERE cidade = ?
         ORDER BY sal_total DESC
       `;
-      
+
       const [rows] = await pool.query(query, [nome_cidade]);
       return reply.status(200).send(rows);
     } catch (error) {
