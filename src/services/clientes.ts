@@ -3,6 +3,97 @@ import { pool } from "../database";
 
 export class ClientesService {
 
+    createCliente = async (request: FastifyRequest, reply: FastifyReply) => {
+        const {
+        cpf, nome_completo, rg, orgao_emissor, uf_rg, data_nascimento,
+        tipo_logradouro, nome_logradouro, numero, complemento, bairro, cep, cidade, estado
+        } = request.body as any;
+
+        try {
+        const query = `
+            INSERT INTO cliente (
+            cpf, nome_completo, rg, orgao_emissor, uf_rg, data_nascimento,
+            tipo_logradouro, nome_logradouro, numero, complemento, bairro, cep, cidade, estado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        await pool.query(query, [
+            cpf, nome_completo, rg, orgao_emissor, uf_rg, data_nascimento,
+            tipo_logradouro, nome_logradouro, numero, complemento || null, bairro, cep, cidade, estado
+        ]);
+
+        return reply.status(201).send({
+            cpf,
+            nome_completo,
+            message: "Cliente cadastrado com sucesso."
+        });
+        } catch (error: any) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            return reply.status(400).send({ error: "Este CPF já está cadastrado no sistema." });
+        }
+        return reply.status(500).send({ error: "Erro interno ao cadastrar cliente." });
+        }
+    };
+
+    // PUT /api/clientes/:cpf
+    updateCliente = async (request: FastifyRequest, reply: FastifyReply) => {
+        const { cpf } = request.params as { cpf: string };
+        const body = request.body as any;
+
+        try {
+        const campos: string[] = [];
+        const valores: any[] = [];
+
+        Object.keys(body).forEach((key) => {
+            if (body[key] !== undefined) {
+            campos.push(`${key} = ?`);
+            valores.push(body[key]);
+            }
+        });
+
+        if (campos.length === 0) {
+            return reply.status(400).send({ error: "Nenhum campo informado para atualização." });
+        }
+
+        valores.push(cpf);
+
+        const query = `UPDATE cliente SET ${campos.join(", ")} WHERE cpf = ?`;
+        const [result] = await pool.query(query, valores);
+
+        if ((result as any).affectedRows === 0) {
+            return reply.status(404).send({ error: "Cliente não encontrado." });
+        }
+
+        return reply.status(200).send({ message: "Dados do cliente atualizados com sucesso." });
+        } catch (error) {
+        return reply.status(500).send({ error: "Erro interno ao atualizar cliente." });
+        }
+    };
+
+    // DELETE /api/clientes/:cpf
+    deleteCliente = async (request: FastifyRequest, reply: FastifyReply) => {
+        const { cpf } = request.params as { cpf: string };
+
+        try {
+        const query = `DELETE FROM cliente WHERE cpf = ?`;
+        const [result] = await pool.query(query, [cpf]);
+
+        if ((result as any).affectedRows === 0) {
+            return reply.status(404).send({ error: "Cliente não encontrado." });
+        }
+
+        return reply.status(200).send({ message: "Cliente removido com sucesso." });
+        } catch (error: any) {
+        // Captura o bloqueio da FK em 'titularidade' (ON DELETE RESTRICT)
+        if (error.code === "ER_ROW_IS_REFERENCED_2" || error.errno === 1451) {
+            return reply.status(400).send({ 
+            error: "Não é possível remover o cliente pois ele está vinculado como titular de uma conta bancária ativa." 
+            });
+        }
+        return reply.status(500).send({ error: "Erro interno ao remover cliente." });
+        }
+    };
+
     getContasCliente = async (request: FastifyRequest, reply: FastifyReply) => {
         const { cpf } = request.params as { cpf: string };
 

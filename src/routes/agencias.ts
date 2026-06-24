@@ -24,6 +24,132 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
     required: ['id']
   };
 
+// =========================================================================
+  // CORREÇÃO E DOCUMENTAÇÃO DAS ROTAS CONFORME REQUISITOS DO TRABALHO
+  // =========================================================================
+
+  // Schema para validação e documentação dos dados de entrada de uma agência
+  const agenciaBodySchema = {
+    type: "object",
+    properties: {
+      nome_ag: { type: "string", maxLength: 256, description: "Nome da agência bancária" },
+      cidade: { type: "string", maxLength: 256, description: "Cidade onde a agência está localizada" },
+      sal_total: { type: "number", minimum: 0, default: 0, description: "Salário total acumulado da agência" }
+    }
+  };
+
+  // 7. Criar uma nova agência (Consulta/Manutenção - Exclusivo DBA)
+  app.post(
+    "/",
+    {
+      // Conforme Requisito: Apenas o DBA mantém o cadastro de tabelas estruturais
+      preHandler: [verificarAcesso(["DBA"])], 
+      schema: {
+        description: "Insere uma nova agência bancária no sistema. Operação restrita ao administrador.",
+        tags: ["agencias"],
+        headers: {
+          type: "object",
+          properties: {
+            "x-user-role": { type: "string", description: "Cargo do usuário (Requer: Administrador (DBA))" }
+          },
+          required: ["x-user-role"]
+        },
+        body: {
+          ...agenciaBodySchema,
+          required: ["nome_ag", "cidade"]
+        },
+        response: {
+          201: {
+            type: "object",
+            description: "Agência criada com sucesso.",
+            properties: {
+              id: { type: "integer", description: "Código gerado pelo banco (num_ag)" },
+              nome_ag: { type: "string" },
+              cidade: { type: "string" },
+              sal_total: { type: "number" },
+              message: { type: "string" }
+            }
+          },
+          400: { type: "object", properties: { error: { type: "string" } } },
+          403: { type: "object", properties: { error: { type: "string" } } },
+          500: { type: "object", properties: { error: { type: "string" } } }
+        }
+      }
+    },
+    agenciasService.createAgencia
+  );
+
+  // 8. Atualizar uma agência existente (ALTERAÇÃO - REVISADO: Exclusivo DBA)
+  app.put(
+    "/:id",
+    {
+      // CORREÇÃO: Removido "Gerente". Gerentes gerenciam contas/funcionários, não os dados da Agência física.
+      preHandler: [verificarAcesso(["DBA"])], 
+      schema: {
+        description: "Atualiza os dados de uma agência existente. Operação restrita ao Administrador/DBA.",
+        tags: ["agencias"],
+        params: paramsAgenciaSchema,
+        headers: {
+          type: "object",
+          properties: {
+            "x-user-role": { type: "string", description: "Cargo do usuário (Requer: Administrador (DBA))" }
+          },
+          required: ["x-user-role"]
+        },
+        body: agenciaBodySchema,
+        response: {
+          200: {
+            type: "object",
+            description: "Agência atualizada com sucesso.",
+            properties: {
+              message: { type: "string" }
+            }
+          },
+          400: { type: "object", properties: { error: { type: "string" } } },
+          403: { type: "object", properties: { error: { type: "string" } } },
+          404: { type: "object", properties: { error: { type: "string" } } },
+          500: { type: "object", properties: { error: { type: "string" } } }
+        }
+      }
+    },
+    agenciasService.updateAgencia
+  );
+
+  // 9. Remover uma agência (REMOÇÃO - Exclusivo DBA)
+  app.delete(
+    "/:id",
+    {
+      // Conforme Requisito: Exclusivo do nível de acesso DBA
+      preHandler: [verificarAcesso(["DBA"])], 
+      schema: {
+        description: "Remove uma agência bancária do sistema (Caso não existam restrições de chave estrangeira ativas).",
+        tags: ["agencias"],
+        params: paramsAgenciaSchema,
+        headers: {
+          type: "object",
+          properties: {
+            "x-user-role": { type: "string", description: "Cargo do usuário (Requer: Administrador (DBA))" }
+          },
+          required: ["x-user-role"]
+        },
+        response: {
+          200: {
+            type: "object",
+            description: "Agência removida com sucesso.",
+            properties: {
+              message: { type: "string" }
+            }
+          },
+          400: { type: "object", description: "Bloqueado por restrição ON DELETE RESTRICT.", properties: { error: { type: "string" } } },
+          403: { type: "object", properties: { error: { type: "string" } } },
+          404: { type: "object", properties: { error: { type: "string" } } },
+          500: { type: "object", properties: { error: { type: "string" } } }
+        }
+      }
+    },
+    agenciasService.deleteAgencia
+  );
+  // 1. Funcionários da agência
   app.get(
     "/:id/funcionarios",
     {

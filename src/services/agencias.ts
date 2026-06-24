@@ -2,7 +2,122 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { pool } from "../database"; 
 
 export class AgenciasService {
-  
+
+  createAgencia = async (request: FastifyRequest, reply: FastifyReply) => {
+    const { nome_ag, cidade, sal_total } = request.body as {
+      nome_ag: string;
+      cidade: string;
+      sal_total?: number;
+    };
+
+    // Validação básica de campos obrigatórios
+
+    if (!nome_ag || !cidade) {
+      return reply.status(400).send({ error: "Os campos 'nome_ag' e 'cidade' são obrigatórios." });
+    }
+
+    try {
+      const query = `
+        INSERT INTO agencia (nome_ag, cidade, sal_total) 
+        VALUES (?, ?, ?)
+      `;
+      
+      const [result] = await pool.query(query, [nome_ag, cidade, sal_total ?? 0]);
+      
+      // Captura o ID gerado pelo AUTO_INCREMENT
+      const insertId = (result as any).insertId;
+
+      return reply.status(201).send({
+        id: insertId,
+        nome_ag,
+        cidade,
+        sal_total: sal_total ?? 0,
+        message: "Agência criada com sucesso."
+      });
+    } catch (error) {
+      return reply.status(500).send({ error: "Erro interno ao criar agência." });
+    }
+  };
+
+  updateAgencia = async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const { nome_ag, cidade, sal_total } = request.body as {
+      nome_ag?: string;
+      cidade?: string;
+      sal_total?: number;
+    };
+
+    if (!nome_ag && !cidade && sal_total === undefined) {
+      return reply.status(400).send({ error: "Nenhum campo informado para atualização." });
+    }
+
+    try {
+
+      const campos: string[] = [];
+      const valores: any[] = [];
+
+      if (nome_ag !== undefined) {
+        campos.push("nome_ag = ?");
+        valores.push(nome_ag);
+      }
+      if (cidade !== undefined) {
+        campos.push("cidade = ?");
+        valores.push(cidade);
+      }
+      if (sal_total !== undefined) {
+        campos.push("sal_total = ?");
+        valores.push(sal_total);
+      }
+
+      valores.push(id);
+
+      const query = `
+        UPDATE agencia 
+        SET ${campos.join(", ")} 
+        WHERE num_ag = ?
+      `;
+
+      const [result] = await pool.query(query, valores);
+      const affectedRows = (result as any).affectedRows;
+
+      if (affectedRows === 0) {
+        return reply.status(404).send({ error: "Agência não encontrada." });
+      }
+
+      return reply.status(200).send({ message: "Agência atualizada com sucesso." });
+    } catch (error) {
+      return reply.status(500).send({ error: "Erro interno ao atualizar agência." });
+    }
+  };
+
+  // DELETE /api/agencias/:id
+  deleteAgencia = async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+
+    try {
+      const query = `DELETE FROM agencia WHERE num_ag = ?`;
+      
+      const [result] = await pool.query(query, [id]);
+      const affectedRows = (result as any).affectedRows;
+
+      if (affectedRows === 0) {
+        return reply.status(404).send({ error: "Agência não encontrada." });
+      }
+
+      return reply.status(200).send({ message: "Agência removida com sucesso." });
+    } catch (error: any) {
+      
+      if (error.code === "ER_ROW_IS_REFERENCED_2" || error.errno === 1451) {
+        return reply.status(400).send({ 
+          error: "Não é possível apagar a agência pois existem funcionários ou contas associadas a ela." 
+        });
+      }
+      
+      return reply.status(500).send({ error: "Erro interno ao apagar agência." });
+    }
+  };
+
+  // GET /api/agencias/:id/funcionarios
   getFuncionarios = async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const { ordenarPor } = request.query as { ordenarPor?: "nome" | "salario" };

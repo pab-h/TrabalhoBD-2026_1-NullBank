@@ -44,6 +44,131 @@ export const clientesRoutes: FastifyPluginAsync = async (app) => {
     required: ["periodo"]
   };
 
+  const clienteBodySchema = {
+    type: "object",
+    properties: {
+      cpf: { type: "string", minLength: 11, maxLength: 11, examples: ["12345678901"] },
+      nome_completo: { type: "string", maxLength: 150, examples: ["Maria Oliveira Silva"] },
+      rg: { type: "string", maxLength: 15, examples: ["20081234567"] },
+      orgao_emissor: { type: "string", maxLength: 10, examples: ["SSP"] },
+      uf_rg: { type: "string", minLength: 2, maxLength: 2, examples: ["CE"] },
+      data_nascimento: { type: "string", format: "date", examples: ["1988-11-23"] },
+      tipo_logradouro: { type: "string", maxLength: 20, examples: ["Avenida"] },
+      nome_logradouro: { type: "string", maxLength: 100, examples: ["Dom José"] },
+      numero: { type: "string", maxLength: 10, examples: ["1200"] },
+      complemento: { type: "string", maxLength: 50, examples: ["Bloco B, Apt 101"] },
+      bairro: { type: "string", maxLength: 50, examples: ["Centro"] },
+      cep: { type: "string", minLength: 8, maxLength: 8, examples: ["62010215"] },
+      cidade: { type: "string", maxLength: 100, examples: ["Sobral"] },
+      estado: { type: "string", minLength: 2, maxLength: 2, examples: ["CE"] }
+    }
+  };
+
+  // 1. Inserir Cliente (POST)
+  app.post(
+    "/",
+    {
+      preHandler: [verificarAcesso(["DBA", "Gerente", "atendente"])],
+      schema: {
+        description: "Cadastra um novo cliente no NullBank.",
+        tags: ["clientes"],
+        headers: {
+          type: "object",
+          properties: { "x-user-role": { type: "string", description: "Cargo", examples: ["atendente"] } },
+          required: ["x-user-role"]
+        },
+        body: {
+          ...clienteBodySchema,
+          required: [
+            "cpf", "nome_completo", "rg", "orgao_emissor", "uf_rg", "data_nascimento",
+            "tipo_logradouro", "nome_logradouro", "numero", "bairro", "cep", "cidade", "estado"
+          ]
+        },
+        response: {
+          201: {
+            type: "object",
+            description: "Cliente criado com sucesso.",
+            properties: {
+              cpf: { type: "string" },
+              nome_completo: { type: "string" },
+              message: { type: "string" }
+            }
+          },
+          400: {
+            type: "object",
+            properties: { error: { type: "string" } },
+            examples: [{ error: "Este CPF já está cadastrado no sistema." }]
+          }
+        }
+      }
+    },
+    clientesService.createCliente
+  );
+
+  // 2. Atualizar Cliente (PUT)
+  app.put(
+    "/:cpf",
+    {
+      preHandler: [verificarAcesso(["DBA", "Gerente", "atendente"])],
+      schema: {
+        description: "Atualiza os dados cadastrais de um cliente existente usando o CPF.",
+        tags: ["clientes"],
+        params: paramsCpfSchema,
+        headers: {
+          type: "object",
+          properties: { "x-user-role": { type: "string", description: "Cargo", examples: ["Gerente"] } },
+          required: ["x-user-role"]
+        },
+        body: clienteBodySchema,
+        response: {
+          200: {
+            type: "object",
+            properties: { message: { type: "string" } }
+          },
+          404: {
+            type: "object",
+            properties: { error: { type: "string" } }
+          }
+        }
+      }
+    },
+    clientesService.updateCliente
+  );
+
+  // 3. Remover Cliente (DELETE)
+  app.delete(
+    "/:cpf",
+    {
+      preHandler: [verificarAcesso(["DBA", "Gerente"])], // Restrito a cargos mais altos por segurança operacional
+      schema: {
+        description: "Remove o registro de um cliente (Bloqueado caso possua contas bancárias vinculadas).",
+        tags: ["clientes"],
+        params: paramsCpfSchema,
+        headers: {
+          type: "object",
+          properties: { "x-user-role": { type: "string", description: "Cargo", examples: ["DBA"] } },
+          required: ["x-user-role"]
+        },
+        response: {
+          200: {
+            type: "object",
+            properties: { message: { type: "string" } }
+          },
+          400: {
+            type: "object",
+            properties: { error: { type: "string" } },
+            examples: [{ error: "Não é possível remover o cliente pois ele está vinculado como titular de uma conta bancária ativa." }]
+          },
+          404: {
+            type: "object",
+            properties: { error: { type: "string" } }
+          }
+        }
+      }
+    },
+    clientesService.deleteCliente
+  );
+
   app.get(
     "/:cpf/contas",
     {

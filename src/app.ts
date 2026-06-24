@@ -7,7 +7,12 @@ import { env }    from './shared/env';
 import { routes } from "./routes"; 
 
 const app = Fastify({
-  logger: true
+  logger: true,
+  ajv: {
+    customOptions: {
+      keywords: ['example'] // Permite que o Ajv aceite a propriedade 'example' sem quebrar no modo estrito
+    }
+  }
 });
 
 app.register(fastifySwagger, {
@@ -27,6 +32,18 @@ app.register(fastifySwagger, {
       {
         name:        'agencias',
         description: 'Rotas para a consulta das agencias',
+      },
+      {
+        name:        'funcionarios',
+        description: 'Rotas para a consulta dos funcionarios',
+      },
+      {
+        name:        'dependentes',
+        description: 'Rotas para a consulta dos dependentes',
+      },
+      {
+        name:        'contas',
+        description: 'Rotas para a consulta das contas bancárias',
       },
       {
         name:        'clientes',
