@@ -24,10 +24,6 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
     required: ['id']
   };
 
-// =========================================================================
-  // CORREÇÃO E DOCUMENTAÇÃO DAS ROTAS CONFORME REQUISITOS DO TRABALHO
-  // =========================================================================
-
   // Schema para validação e documentação dos dados de entrada de uma agência
   const agenciaBodySchema = {
     type: "object",
@@ -42,7 +38,6 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
   app.post(
     "/",
     {
-      // Conforme Requisito: Apenas o DBA mantém o cadastro de tabelas estruturais
       preHandler: [verificarAcesso(["DBA"])], 
       schema: {
         description: "Insere uma nova agência bancária no sistema. Operação restrita ao administrador.",
@@ -83,7 +78,6 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
   app.put(
     "/:id",
     {
-      // CORREÇÃO: Removido "Gerente". Gerentes gerenciam contas/funcionários, não os dados da Agência física.
       preHandler: [verificarAcesso(["DBA"])], 
       schema: {
         description: "Atualiza os dados de uma agência existente. Operação restrita ao Administrador/DBA.",
@@ -119,7 +113,6 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
   app.delete(
     "/:id",
     {
-      // Conforme Requisito: Exclusivo do nível de acesso DBA
       preHandler: [verificarAcesso(["DBA"])], 
       schema: {
         description: "Remove uma agência bancária do sistema (Caso não existam restrições de chave estrangeira ativas).",

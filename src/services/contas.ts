@@ -10,7 +10,7 @@ export class ContasBancariasService {
       taxa_juros, limite_credito, data_aniversario_contrato
     } = request.body as any;
 
-    // try {
+    try {
       // O campo saldo possui o valor DEFAULT 0.00 no banco, portanto não precisa ser passado obrigatoriamente
       const query = `
         INSERT INTO conta_bancaria (
@@ -37,15 +37,15 @@ export class ContasBancariasService {
         saldo: 0.00,
         message: "Conta bancária aberta com sucesso."
       });
-    // } catch (error: any) {
-    //   // Captura caso a agência ou a matrícula do gerente informadas não existam (FK Restrict)
-    //   if (error.code === "ER_NO_REFERENCED_ROW_2" || error.errno === 1452) {
-    //     return reply.status(400).send({ 
-    //       error: "Erro de integridade. A agência ou a matrícula do gerente informada não existe." 
-    //     });
-    //   }
-    //   return reply.status(500).send({ error: "Erro interno ao abrir conta bancária." });
-    // }
+    } catch (error: any) {
+      // Captura caso a agência ou a matrícula do gerente informadas não existam (FK Restrict)
+      if (error.code === "ER_NO_REFERENCED_ROW_2" || error.errno === 1452) {
+        return reply.status(400).send({ 
+          error: "Erro de integridade. A agência ou a matrícula do gerente informada não existe." 
+        });
+      }
+      return reply.status(500).send({ error: "Erro interno ao abrir conta bancária." });
+    }
   };
 
   // PUT /api/contas/:num_conta

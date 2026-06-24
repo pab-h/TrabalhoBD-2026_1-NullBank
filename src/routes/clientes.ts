@@ -139,7 +139,7 @@ export const clientesRoutes: FastifyPluginAsync = async (app) => {
   app.delete(
     "/:cpf",
     {
-      preHandler: [verificarAcesso(["DBA", "Gerente"])], // Restrito a cargos mais altos por segurança operacional
+      preHandler: [verificarAcesso(["DBA", "Gerente"])], 
       schema: {
         description: "Remove o registro de um cliente (Bloqueado caso possua contas bancárias vinculadas).",
         tags: ["clientes"],
