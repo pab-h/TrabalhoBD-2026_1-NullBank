@@ -3,14 +3,17 @@ import fastifySwaggerUi from '@fastify/swagger-ui';
 import fastifyCors      from '@fastify/cors';
 import Fastify          from 'fastify'
 
-import { env }    from './shared/env';
-import { routes } from "./routes"; 
+import { env }        from './shared/env';
+import { routes }     from "./routes"; 
+import { initTables } from './database';
+
+initTables();
 
 const app = Fastify({
   logger: true,
   ajv: {
     customOptions: {
-      keywords: ['example'] // Permite que o Ajv aceite a propriedade 'example' sem quebrar no modo estrito
+      keywords: ['example'] 
     }
   }
 });
