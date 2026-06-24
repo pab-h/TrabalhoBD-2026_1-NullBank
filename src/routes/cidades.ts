@@ -21,7 +21,6 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
     required: ['nome_cidade']
   };
 
-  // 1. Clientes por Cidade
   app.get(
     "/:nome_cidade/clientes",
     {
@@ -49,7 +48,6 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
     cidadesService.getClientesPorCidade
   );
 
-  // 2. Funcionários por Cidade
   app.get(
     "/:nome_cidade/funcionarios",
     {
@@ -83,7 +81,6 @@ export const cidadesRoutes: FastifyPluginAsync = async (app) => {
     cidadesService.getFuncionariosPorCidade
   );
 
-  // 3. Balanço Salarial por Cidade
   app.get(
     "/:nome_cidade/agencias/balanco-salarial",
     {

@@ -4,7 +4,6 @@ import { AgenciasService } from "../services/agencias";
 export const agenciasRoutes: FastifyPluginAsync = async (app) => {
   const agenciasService = new AgenciasService();
 
-  // Middleware para simular o controle de acesso baseado nas roles
   const verificarAcesso = (rolesPermitidas: string[]) => {
     return async (request: FastifyRequest, reply: FastifyReply) => {
       const userRole = request.headers["x-user-role"] as string;
@@ -17,7 +16,6 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
     };
   };
 
-  // Parâmetro de rota padrão (:id) mapeando para o número da agência (num_ag)
   const paramsAgenciaSchema = {
     type: 'object',
     properties: {
@@ -26,7 +24,6 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
     required: ['id']
   };
 
-  // 1. Funcionários da agência
   app.get(
     "/:id/funcionarios",
     {
@@ -73,8 +70,7 @@ export const agenciasRoutes: FastifyPluginAsync = async (app) => {
     agenciasService.getFuncionarios
   );
 
-  // 2. Clientes vinculados à agência
-app.get(
+  app.get(
     "/:id/clientes",
     {
       preHandler: [verificarAcesso(["DBA", "Gerente", "Atendente"])],
@@ -128,7 +124,6 @@ app.get(
     agenciasService.getClientes
   );
 
-  // 3. Contas especiais devedoras
   app.get(
     "/:id/contas/especiais-devedoras",
     {
@@ -161,7 +156,6 @@ app.get(
     agenciasService.getContasEspeciaisDevedoras
   );
 
-  // 4. Contas poupanças positivas
   app.get(
     "/:id/contas/poupancas-positivas",
     {
@@ -194,7 +188,6 @@ app.get(
     agenciasService.getContasPoupancasPositivas
   );
 
-  // 5. Contas correntes mais movimentadas
   app.get(
     "/:id/contas/correntes-movimentadas",
     {
@@ -238,7 +231,6 @@ app.get(
     agenciasService.getContasCorrentesMovimentadas
   );
 
-  // 6. Contas com maior volume financeiro
   app.get(
     "/:id/contas/maior-volume",
     {
