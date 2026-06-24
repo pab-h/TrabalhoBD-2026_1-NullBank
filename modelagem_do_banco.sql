@@ -1,19 +1,19 @@
-DROP DATABASE IF EXISTS Equipe540193;
+-- DROP DATABASE IF EXISTS Equipe540193;
 
-CREATE DATABASE Equipe540193;
+CREATE DATABASE IF NOT EXISTS Equipe540193;
 
 USE Equipe540193;
 
-CREATE TABLE agencia (
+CREATE TABLE IF NOT EXISTS agencia (
 
-    num_ag        INT            AUTO_INCREMENT PRIMARY KEY,
-    nome          VARCHAR(256)   NOT NULL,
-    salario_total DECIMAL(12, 2) DEFAULT 0,
-    cidade        VARCHAR(256)   NOT NULL
+    num_ag    INT            AUTO_INCREMENT PRIMARY KEY,
+    nome_ag   VARCHAR(256)   NOT NULL,
+    sal_total DECIMAL(12, 2) DEFAULT 0,
+    cidade    VARCHAR(256)   NOT NULL
 
 );
 
-CREATE TABLE funcionario (
+CREATE TABLE IF NOT EXISTS funcionario (
 
     matricula       VARCHAR(20)  NOT NULL,
     nome_completo   VARCHAR(150) NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE funcionario (
 
 ) ENGINE=InnoDB;
 
-CREATE TABLE dependente (
+CREATE TABLE IF NOT EXISTS dependente (
 
     id_dependente   INT          AUTO_INCREMENT,
     fk_matricula    VARCHAR(20)  NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE dependente (
 
 ) ENGINE=InnoDB;
 
-CREATE TABLE cliente (
+CREATE TABLE IF NOT EXISTS cliente (
 
     cpf             CHAR(11)     NOT NULL,
     nome_completo   VARCHAR(150) NOT NULL,
@@ -78,20 +78,18 @@ CREATE TABLE cliente (
 
 ) ENGINE=InnoDB;
 
-CREATE TABLE telefone_cliente (
-
+CREATE TABLE IF NOT EXISTS telefone_cliente (
     id_telefone INT AUTO_INCREMENT,
     fk_cpf CHAR(11) NOT NULL,
-    numero VARCHAR(14) NOT NULL,
+    numero VARCHAR(15) NOT NULL,
     descricao VARCHAR(30) NOT NULL,
-
     PRIMARY KEY (id_telefone),
     FOREIGN KEY (fk_cpf) REFERENCES cliente(cpf)
         ON DELETE CASCADE ON UPDATE CASCADE
 
 ) ENGINE=InnoDB;
 
-CREATE TABLE email_cliente (
+CREATE TABLE IF NOT EXISTS email_cliente (
 
     id_email  INT          AUTO_INCREMENT,
     fk_cpf    CHAR(11)     NOT NULL,
@@ -104,9 +102,9 @@ CREATE TABLE email_cliente (
 
 ) ENGINE=InnoDB;
 
-CREATE TABLE conta_bancaria (
+CREATE TABLE IF NOT EXISTS conta_bancaria (
 
-    num_conta INT            NOT NULL,
+    num_conta INT            AUTO_INCREMENT NOT NULL,
     saldo     DECIMAL(15, 2) NOT NULL DEFAULT 0.00, 
     senha     VARCHAR(255)   NOT NULL,
 
@@ -127,7 +125,7 @@ CREATE TABLE conta_bancaria (
 
 ) ENGINE=InnoDB;
 
-CREATE TABLE titularidade (
+CREATE TABLE IF NOT EXISTS titularidade (
 
     fk_num_conta   INT      NOT NULL,
     fk_cpf_cliente CHAR(11) NOT NULL,
@@ -142,7 +140,7 @@ CREATE TABLE titularidade (
 
 ) ENGINE=InnoDB;
 
-CREATE TABLE transacao (
+CREATE TABLE IF NOT EXISTS transacao (
 
     num_transacao INT NOT NULL, 
     fk_num_conta  INT NOT NULL,
@@ -157,3 +155,4 @@ CREATE TABLE transacao (
         ON DELETE CASCADE ON UPDATE CASCADE
 
 ) ENGINE=InnoDB;
+

@@ -63,33 +63,28 @@ INSERT INTO titularidade (fk_num_conta, fk_cpf_cliente, titularidade) VALUES
 
 (1001, '11122233344', '1º Titular'), 
 (1002, '55566677788', '1º Titular'),
-(1002, '11122233344', '2º Titular'), 
+(1002, '22233344455', '2º Titular'), 
 (1003, '22233344455', '1º Titular'), 
 (1004, '99988877766', '1º Titular'), 
-(1005, '11122233344', '1º Titular'); 
+(1005, '99988877766', '1º Titular'); 
 
-INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES
+INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES 
+(1, 1001, 'depósito', '2026-05-10 10:00:00', 2000.00), 
+(2, 1001, 'saque', '2026-06-02 14:30:00', 450.00), 
+(3, 1001, 'pagamento', '2026-06-08 09:15:00', 500.00);
 
-(1, 1001, 'depósito', '2026-05-10 10:00:00', 2000.00),
-(2, 1001, 'saque', '2026-06-02 14:30:00', 450.00),
-(3, 1001, 'pagamento', '2026-06-08 09:15:00', 500.00),
+INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES 
+(1, 1002, 'depósito', '2026-01-20 08:00:00', 5000.00), 
+(2, 1002, 'depósito', '2026-06-05 16:00:00', 150.00);
 
-INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES
+INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES 
+(1, 1003, 'depósito', '2026-05-01 11:00:00', 800.00), 
+(2, 1003, 'PIX', '2026-05-28 22:10:00', 2000.00);
 
-(1, 1002, 'depósito', '2026-01-20 08:00:00', 5000.00),
-(2, 1002, 'depósito', '2026-06-05 16:00:00', 150.00), 
+INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES 
+(1, 1004, 'depósito', '2026-03-16 14:00:00', 15000.00), 
+(2, 1004, 'transferência', '2026-04-02 10:30:00', 2500.00);
 
-INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES
-
-(1, 1003, 'depósito', '2026-05-01 11:00:00', 800.00),
-(2, 1003, 'PIX', '2026-05-28 22:10:00', 2000.00), 
-
-INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES
-
-(1, 1004, 'depósito', '2026-03-16 14:00:00', 15000.00),
-(2, 1004, 'transferência', '2026-04-02 10:30:00', 2500.00),
-
-INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES
-
-(1, 1005, 'depósito', '2026-06-07 12:00:00', 400.00), 
-(2, 1005, 'saque', '2026-06-09 15:00:00', 50.00);     
+INSERT INTO transacao (num_transacao, fk_num_conta, tipo_transacao, data_hora, valor) VALUES 
+(1, 1005, 'depósito', '2026-06-07 12:00:00', 400.00),  
+(2, 1005, 'saque', '2026-06-09 15:00:00', 50.00);   
