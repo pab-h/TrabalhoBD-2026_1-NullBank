@@ -38,6 +38,10 @@ app.register(fastifySwagger, {
         description: 'Rotas para a consulta dos funcionarios',
       },
       {
+        name:        'dependentes',
+        description: 'Rotas para a consulta dos dependentes',
+      },
+      {
         name:        'clientes',
         description: 'Rotas para a consulta dos clientes',
       },
