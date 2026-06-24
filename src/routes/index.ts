@@ -7,6 +7,7 @@ import { viewsRoutes }        from "./views";
 import { cidadesRoutes }      from "./cidades";
 import { funcionariosRoutes } from "./funcionarios";
 import { dependentesRoutes } from "./dependentes";
+import { contasRoutes } from "./contas";
 
 export const routes: FastifyPluginAsync = async app => {
 
@@ -17,5 +18,6 @@ export const routes: FastifyPluginAsync = async app => {
     app.register(cidadesRoutes, { prefix: "/cidades" });
     app.register(transacoesRoutes, { prefix: "/transacoes" });
     app.register(viewsRoutes, { prefix: "/views" });
+    app.register(contasRoutes, { prefix: "/contas" });
 
 }

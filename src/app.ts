@@ -42,6 +42,10 @@ app.register(fastifySwagger, {
         description: 'Rotas para a consulta dos dependentes',
       },
       {
+        name:        'contas',
+        description: 'Rotas para a consulta das contas bancárias',
+      },
+      {
         name:        'clientes',
         description: 'Rotas para a consulta dos clientes',
       },
