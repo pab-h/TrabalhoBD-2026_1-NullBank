@@ -2,12 +2,12 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { pool } from "../database";
 
 export class CidadesService {
-  // GET /api/cidades/:nome_cidade/clientes
+  
   getClientesPorCidade = async (request: FastifyRequest, reply: FastifyReply) => {
     const { nome_cidade } = request.params as { nome_cidade: string };
 
     try {
-      // Ordem crescente por idade = Da menor idade para a maior = Data de nascimento mais recente para a mais antiga (DESC)
+      // A ordem DESC na data de nascimento traz os clientes mais jovens primeiro
       const query = `
         SELECT 
           nome_completo AS nome,
@@ -24,11 +24,11 @@ export class CidadesService {
     }
   };
 
-  // GET /api/cidades/:nome_cidade/funcionarios
   getFuncionariosPorCidade = async (request: FastifyRequest, reply: FastifyReply) => {
     const { nome_cidade } = request.params as { nome_cidade: string };
 
     try {
+      // Lista a equipa inteira da cidade organizando por agência, depois cargo e salário
       const query = `
         SELECT 
           f.nome_completo AS nome,
@@ -49,11 +49,11 @@ export class CidadesService {
     }
   };
 
-  // GET /api/cidades/:nome_cidade/agencias/balanco-salarial
   getBalancoSalarial = async (request: FastifyRequest, reply: FastifyReply) => {
     const { nome_cidade } = request.params as { nome_cidade: string };
 
     try {
+      // Mostra quanto cada agência da cidade está a gastar em salários
       const query = `
         SELECT nome_ag, sal_total
         FROM agencia

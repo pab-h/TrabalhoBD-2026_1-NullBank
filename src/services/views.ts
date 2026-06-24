@@ -7,6 +7,7 @@ export class ViewsService {
         const { matricula } = request.params as { matricula: string };
 
         try {
+            // Traz a view pré-montada com a carteira de clientes do gerente
             const [rows] = await pool.query(
                 'SELECT * FROM v_contas_por_gerente WHERE matricula_gerente = ?',
                 [matricula]
@@ -25,10 +26,11 @@ export class ViewsService {
             return reply.status(400).send({ error: "O parâmetro de consulta 'periodo' deve ser '7d', '30d' ou '365d'." });
         }
 
-        // Converter o período numérico para dias
+        // Traduz a janela de tempo da requisição para dias matemáticos do SQL
         const dias = periodo === '7d' ? 7 : periodo === '30d' ? 30 : 365;
 
         try {
+            // Traz o histórico limpo da view filtrando pelos dias escolhidos
             const [rows] = await pool.query(
                 `SELECT * FROM v_extrato_transacoes 
                  WHERE num_conta = ? 

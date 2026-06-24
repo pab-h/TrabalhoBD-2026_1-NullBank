@@ -98,6 +98,7 @@ export class ClientesService {
         const { cpf } = request.params as { cpf: string };
 
         try {
+            // Traz um resumo rápido de todas as contas que o cliente tem no banco
             const query = `
             SELECT cb.num_conta, cb.tipo_conta, cb.saldo, a.nome_ag AS agencia, f.nome_completo AS gerente
             FROM conta_bancaria cb
@@ -117,6 +118,7 @@ export class ClientesService {
         const { cpf } = request.params as { cpf: string };
 
         try {
+            // Verifica na associativa se o cliente partilha alguma conta com terceiros
             const query = `
             SELECT c.nome_completo, c.cpf, t2.fk_num_conta AS num_conta
             FROM titularidade t1
@@ -137,11 +139,13 @@ export class ClientesService {
 
         if (!periodo) {
             return reply.status(400).send({ error: "Parâmetro 'período' obrigatório" });
-
         }
+        
+        // Transforma o texto '30d' em número puro para usar na query do MySQL
         const dias = parseInt(periodo.replace("d", ""), 10);
 
         try {
+            // Acha a conta-corrente que o cliente mais usou nos últimos dias
             const query = `
             SELECT cb.num_conta, COUNT(tr.num_transacao) AS total_transacoes
             FROM conta_bancaria cb
@@ -154,7 +158,7 @@ export class ClientesService {
             const [rows] = await pool.query(query, [cpf, dias]);
             return reply.status(200).send(rows);
         } catch (error) {
-
+            return reply.status(500).send({ error: "Erro ao buscar contas movimentadas" });
         }
     };
 
@@ -168,6 +172,7 @@ export class ClientesService {
         const dias = parseInt(periodo.replace("d", ""), 10);
 
         try {
+            // Acha em qual das contas o cliente movimentou o maior volume de dinheiro
             const query = `
             SELECT cb.num_conta, SUM(ABS(tr.valor)) AS volume_total
             FROM conta_bancaria cb

@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { pool } from "../database"; // Assumindo que seu pool se conecta ao MySQL
+import { pool } from "../database"; 
 
 export class AgenciasService {
 
@@ -122,7 +122,7 @@ export class AgenciasService {
     const { id } = request.params as { id: string };
     const { ordenarPor } = request.query as { ordenarPor?: "nome" | "salario" };
 
-    // Mapeamento correto conforme a tabela 'funcionario'
+    // Define se vamos ordenar pelo nome (A-Z) ou por quem ganha mais
     const orderByColumn = ordenarPor === "salario" ? "f.salario DESC" : "f.nome_completo ASC";
 
     try {
@@ -140,14 +140,13 @@ export class AgenciasService {
         ORDER BY ${orderByColumn}
       `;
       
-      const [rows] = await pool.query(query, [id]); // Padrão de desestruturação para bibliotecas MySQL (ex: mysql2)
+      const [rows] = await pool.query(query, [id]);
       return reply.status(200).send(rows);
     } catch (error) {
       return reply.status(500).send({ error: "Erro interno ao buscar funcionários." });
     }
   };
 
-  // GET /api/agencias/:id/clientes
   getClientes = async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
 
@@ -163,12 +162,11 @@ export class AgenciasService {
         GROUP BY cb.tipo_conta, c.nome_completo
       `;
       
-      // Pegamos o primeiro elemento do array retornado pela query (que são as linhas) 
-      // e dizemos ao TypeScript exatamente o formato delas usando o "as"
+      // Pega só os resultados do banco e avisa ao TypeScript o formato deles
       const [result] = await pool.query(query, [id]);
       const rows = result as { tipo_conta: string; nome_completo: string }[];
 
-      // Reduz o array plano para o objeto agrupado por tipo_conta
+      // Agrupa a lista numa estrutura limpa separada por categorias de conta
       const resultadoAgrupado = rows.reduce((acc, row) => {
         const { tipo_conta, nome_completo } = row;
 
@@ -189,12 +187,11 @@ export class AgenciasService {
     }
   };
 
-  // GET /api/agencias/:id/contas/especiais-devedoras
   getContasEspeciaisDevedoras = async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
 
     try {
-      // Filtrando pelo ENUM 'conta especial' e saldo < 0
+      // Filtra as contas do tipo especial que estão com o saldo no vermelho
       const query = `
         SELECT num_conta, saldo 
         FROM conta_bancaria 
@@ -209,12 +206,11 @@ export class AgenciasService {
     }
   };
 
-  // GET /api/agencias/:id/contas/poupancas-positivas
   getContasPoupancasPositivas = async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
 
     try {
-      // Filtrando pelo ENUM 'poupança' e saldo >= 0
+      // Traz as poupanças com dinheiro guardado (saldo positivo ou zerado)
       const query = `
         SELECT num_conta, saldo 
         FROM conta_bancaria 
@@ -229,7 +225,6 @@ export class AgenciasService {
     }
   };
 
-  // GET /api/agencias/:id/contas/correntes-movimentadas
   getContasCorrentesMovimentadas = async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const { periodo } = request.query as { periodo: "7d" | "30d" | "365d" };
@@ -238,10 +233,11 @@ export class AgenciasService {
       return reply.status(400).send({ error: "O parâmetro 'periodo' é obrigatório." });
     }
 
-    // Tradução limpa de dias para a função DATE_SUB do MySQL
+    // Limpa a string (ex: de '7d' para 7) para injetar de forma limpa no filtro do banco
     const dias = parseInt(periodo.replace("d", ""), 10);
 
     try {
+      // Descobre quais contas-correntes tiveram mais atividade recentemente
       const query = `
         SELECT cb.num_conta, COUNT(t.num_transacao) AS total_transacoes
         FROM conta_bancaria cb
@@ -260,7 +256,6 @@ export class AgenciasService {
     }
   };
 
-  // GET /api/agencias/:id/contas/maior-volume
   getContasMaiorVolume = async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const { periodo } = request.query as { periodo: "7d" | "30d" | "365d" };
@@ -272,6 +267,7 @@ export class AgenciasService {
     const dias = parseInt(periodo.replace("d", ""), 10);
 
     try {
+      // Soma tudo o que entrou e saiu para achar as contas que giraram mais dinheiro
       const query = `
         SELECT cb.num_conta, SUM(ABS(t.valor)) AS volume_total
         FROM conta_bancaria cb
